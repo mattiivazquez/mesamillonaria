@@ -1,0 +1,109 @@
+Cómo usar Mesa Millonaria (chat de tema libre con Grok, ChatGPT y Claude)
+==========================================================================
+
+Es un chat grupal de TEMA LIBRE: le planteás cualquier cosa (una decisión,
+una opinión, una idea de negocio, un debate de café, lo que sea) y Grok,
+ChatGPT y Claude van charlando entre ellos, cada uno con su personalidad:
+  👽 Grok    -> tira la postura más audaz y provocadora
+  🧠 ChatGPT -> ordena y estructura lo que se dijo
+  🦉 Claude  -> cuestiona el punto más débil del argumento
+
+Opción A - Chat web (recomendado, se ve como una app)
+------------------------------------------------------
+1) Activar el entorno y levantar el servidor:
+   source venv/bin/activate
+   python app.py
+
+Va a imprimir algo así:
+   En esta Mac:   http://localhost:5050
+   Desde el celu (misma wifi): http://192.168.x.x:5050
+
+- En la COMPU: abrí esa dirección de "localhost" en el navegador.
+- En el CELULAR: conectalo a la MISMA WIFI que la Mac, y abrí la dirección
+  con la IP (la que imprime la consola en ese momento, puede cambiar de
+  red a red). La primera vez, macOS va a preguntar si permitís conexiones
+  entrantes para Python — decile que sí.
+- Si te dice que el puerto ya está en uso, es que quedó otra ventana de
+  Terminal corriendo el mismo servidor de antes: cerrala (Ctrl+C ahí) y
+  probá de nuevo.
+
+Escribís tu tema/mensaje UNA vez y los tres se quedan hablando y
+contestándose solos, ronda tras ronda, en vivo y en orden aleatorio (no
+siempre Grok -> ChatGPT -> Claude). Podés meter un comentario en cualquier
+momento sin que se trabe nada, y hay un botón ⏸/▶️ para pausar o seguir
+cuando quieras.
+
+Botones:
+  🫡 Dame la orden de trabajo -> en cualquier momento de la charla, si te
+     gustó por dónde va una idea: los tres te dan instrucciones concretas
+     A VOS (en segunda persona, tipo "andá y hacé esto") para llevarla a
+     cabo en el mundo real - porque ellos no pueden crear cuentas, hablar
+     con gente ni comprar nada, pero vos sí. No cierra el chat, podés
+     seguir charlando después. Se guarda en planes/orden_....txt.
+  🔒 Cerrar y sacar conclusión -> termina la charla: cada uno da su
+     conclusión final, y si el tema tenía algo accionable, una lista de
+     puntos. Se guarda en planes/plan_....txt.
+  ⚙️ Desarrollar contenido -> si la conclusión dejó puntos concretos, los
+     tres ESCRIBEN el contenido real (texto real, no una descripción), uno
+     atrás del otro para que quede coherente. Tiene botón de copiar en
+     cada bloque.
+
+Dejá la Terminal abierta corriendo "python app.py" mientras lo usás; para
+cortar el servidor, Ctrl+C ahí. Si ya lo tenías corriendo de antes y no ves
+estas funciones nuevas, cortalo (Ctrl+C) y volvé a correr "python app.py"
+para que cargue el código actualizado.
+
+Opción B - Terminal
+--------------------
+   source venv/bin/activate
+   python debate.py
+
+Te pregunta el tema (Enter usa un default de ejemplo). Después de CADA
+mensaje te pregunta:
+
+   🎤 (Enter sigue, escribí para meterte, 'salir' corta):
+
+- Enter        -> el chat sigue solo.
+- Escribís algo -> se mete como comentario tuyo y los tres lo tienen en
+                   cuenta para lo que dicen después.
+- salir        -> corta ahí mismo y pasa directo al cierre.
+
+No hay límite de rondas fijo: seguí apretando Enter todo lo que quieras y
+cortá vos mismo cuando quieras. Al final, los tres dan su conclusión y se
+guarda un archivo nuevo en planes/ (nunca se pisa uno anterior, así podés
+comparar charlas distintas).
+
+Modo automático (rondas por comando, sin escribir nada)
+---------------------------------------------------------
+   python debate.py --auto-nuevo "tu tema opcional"   -> arranca
+   python debate.py --auto-ronda                       -> corre 1 ronda más
+   python debate.py --auto-ronda                       -> (repetir las veces que quieras)
+   python debate.py --auto-cerrar                      -> cierra y guarda la conclusión
+   python debate.py --auto-orden                       -> pide la orden de trabajo (sin cerrar el chat)
+
+Desarrollar el contenido real desde la Terminal
+--------------------------------------------------
+Una vez que tenés un cierre guardado en planes/ con puntos concretos:
+
+   python debate.py --ejecutar
+
+Por default usa el ÚLTIMO cierre guardado. Para uno específico:
+
+   python debate.py --ejecutar planes/plan_2026-09-16_17h44.txt
+
+Ojo: esto escribe CONTENIDO real: si algún punto es una planilla, una
+página web o un documento tipo PDF, generan el ARCHIVO de verdad (.csv que
+abrís en Excel/Sheets, .html que abrís en el navegador, .pdf real), no una
+descripción en texto. Quedan guardados junto con los .txt en la misma
+carpeta "_ejecucion". Crear cuentas reales, publicar en un hosting o
+cobrar en algún lado lo tenés que hacer vos - eso no se puede automatizar.
+
+Para ver la lista de modelos disponibles en cada API (Claude/ChatGPT/Grok):
+   python debate.py --modelos
+
+Notas:
+- Las claves están en el archivo .env (no lo compartas ni lo subas a git).
+- Los modelos usados quedaron fijados en .env:
+    MODELO_GROK=grok-4.20-0309-non-reasoning (rápido; grok-4.6 es más lento pero un poco más elaborado)
+    MODELO_CHATGPT=gpt-5.1 (default del script, no hace falta ponerlo en .env)
+    MODELO_CLAUDE=claude-sonnet-5 (default del script, no hace falta ponerlo en .env)
