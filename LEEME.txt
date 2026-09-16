@@ -8,6 +8,18 @@ ChatGPT y Claude van charlando entre ellos, cada uno con su personalidad:
   🧠 ChatGPT -> ordena y estructura lo que se dijo
   🦉 Claude  -> cuestiona el punto más débil del argumento
 
+Login (usuarios)
+-----------------
+El chat web ahora pide usuario y contraseña, y CADA UNO tiene su propia
+charla privada (vos no ves la de tu mujer, ni ella la tuya). Se configuran
+en el .env, variable USUARIOS, formato "usuario:clave,usuario:clave,...":
+
+   USUARIOS=mati:tuClaveReal,mujer:otraClave,mama:otraClave
+
+Cambiá las claves de ejemplo por unas reales antes de compartirlo. También
+hay FLASK_SECRET_KEY en el .env (ya viene generada) - no la compartas, y no
+hace falta tocarla.
+
 Opción A - Chat web (recomendado, se ve como una app)
 ------------------------------------------------------
 1) Activar el entorno y levantar el servidor:
@@ -107,3 +119,54 @@ Notas:
     MODELO_GROK=grok-4.20-0309-non-reasoning (rápido; grok-4.6 es más lento pero un poco más elaborado)
     MODELO_CHATGPT=gpt-5.1 (default del script, no hace falta ponerlo en .env)
     MODELO_CLAUDE=claude-sonnet-5 (default del script, no hace falta ponerlo en .env)
+
+Hostearlo en internet (para entrar desde cualquier lado, sin wifi compartida)
+==============================================================================
+Ya está todo preparado (repo git, .gitignore, requirements.txt). Recomiendo
+Render.com porque tiene un plan gratis sin pedir tarjeta para este tipo de
+apps chicas. Pasos:
+
+1) Subir el código a GitHub (una sola vez):
+   - Entrá a github.com, creá una cuenta si no tenés, y creá un repositorio
+     NUEVO y PRIVADO (botón "New" -> nombre, ej. "mesa-millonaria" -> Private
+     -> Create repository). No marques "Add a README".
+   - Copiá la URL que te da (termina en .git) y pegámela para que la
+     conecte y suba el código, o hacelo vos mismo:
+       git remote add origin <la-URL-que-copiaste>
+       git branch -M main
+       git push -u origin main
+   - El .env NO se sube (está en .gitignore) - tus claves quedan a salvo.
+
+2) Crear la cuenta en Render.com (gratis, no pide tarjeta para este plan):
+   - Entrá a render.com -> Sign Up -> podés entrar con tu cuenta de GitHub
+     directamente, así ya queda conectado.
+
+3) Crear el servicio:
+   - Dashboard -> New -> Web Service.
+   - Elegí el repo "mesa-millonaria" que subiste.
+   - Build Command:   pip install -r requirements.txt
+   - Start Command:   python app.py
+   - Plan: Free.
+
+4) Cargar las claves (Environment -> Add Environment Variable), una por
+   una, copiando los valores de tu .env local:
+   - ANTHROPIC_API_KEY
+   - XAI_API_KEY
+   - OPENAI_API_KEY
+   - MODELO_GROK
+   - USUARIOS  (con las claves reales para vos, tu mujer y tu mamá)
+   - FLASK_SECRET_KEY  (la misma que ya tenés en tu .env local)
+
+5) Create Web Service. Esperá el deploy (unos minutos) y te da una URL
+   pública tipo https://mesa-millonaria.onrender.com - esa es la que le
+   pasás a tu mujer y a tu mamá. Cada uno entra con su propio usuario.
+
+Cosas a tener en cuenta con el plan gratis de Render:
+- Si nadie lo usa por 15 minutos, el servidor "se duerme"; el próximo que
+  entre espera unos 30-50 segundos mientras arranca de nuevo. Es normal.
+- Los archivos que se generan en planes/ (CSV, HTML, PDF) NO quedan
+  guardados para siempre ahí - se pierden si Render reinicia el servicio.
+  Descargalos apenas los generás (el chat ya te da el link de descarga).
+- Para actualizar el código hosteado más adelante: hacé los cambios acá,
+  "git add -A && git commit -m 'cambios' && git push", y Render lo
+  redespliega solo.
