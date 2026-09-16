@@ -54,6 +54,17 @@ REGLAS = (
     "mensaje puntual con la etiqueta exacta [LISTO] al final (nada más en esa línea). No "
     "seas de los que da vueltas eternamente sobre una idea que ya cierra: si está lista, "
     "avisá y proponé cerrar, no seas timido para decirlo."
+    "\n\nRestricción dura cuando el tema es armar algo con trabajo recurrente (un "
+    "negocio, un proyecto, un servicio): el trabajo de todos los días tiene que poder "
+    "hacerlo un agente de IA (contenido, textos, código, atención por chat/email, "
+    "análisis de datos, automatizaciones) - NO le asignes al moderador ser la mano de "
+    "obra humana del negocio. Está prohibido proponer como método central cosas como "
+    "tocar timbres puerta a puerta, repartir volantes en persona, hacer llamadas en "
+    "frío uno por uno, o cualquier tarea manual repetitiva que dependa de que el "
+    "moderador la haga físicamente día tras día. El moderador puede hacer cosas "
+    "puntuales y no repetitivas (crear una cuenta, aprobar algo, pagar, una decisión), "
+    "pero el grueso del trabajo recurrente se arma para que lo automatice o lo haga un "
+    "agente de IA."
 )
 
 PERSONAS = {
@@ -454,7 +465,12 @@ PEDIDO_ORDEN = (
     "pasos concretos y en el orden en que los tiene que hacer, para la parte que le "
     "corresponde a tu rol en esta idea puntual. Nada de placeholders ni de 'investigá el "
     "mercado': cada paso tiene que ser una acción física o digital concreta y verificable "
-    "(se puede tildar como hecha o no hecha)."
+    "(se puede tildar como hecha o no hecha). Recordatorio importante: los pasos que le "
+    "des al moderador tienen que ser puntuales (crear una cuenta, aprobar algo, subir un "
+    "archivo, pagar algo) - el trabajo que se repite día tras día (mandar mensajes, "
+    "generar contenido, hacer seguimiento) tiene que quedar armado para que lo hagan "
+    "ustedes o quede automatizado, no para que el moderador salga a hacerlo a mano "
+    "(nada de 'tocá timbres', 'llamá uno por uno' o repartir volantes como tarea suya)."
     + INSTRUCCION_ARCHIVOS
 )
 
