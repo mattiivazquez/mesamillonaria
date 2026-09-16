@@ -217,11 +217,13 @@ def api_siguiente():
     except Exception as e:
         return jsonify(error=f"{nombre} falló: {e}"), 502
 
+    texto, listo = debate.extraer_listo(texto)
+
     with _lock:
         estado = estado_actual()
         estado["historial"] += f"\n{nombre}: {texto}\n"
         estado["turno"] += 1
-        mensaje = {"autor": nombre, "texto": texto}
+        mensaje = {"autor": nombre, "texto": texto, "listo": listo}
         estado["mensajes"].append(mensaje)
     return jsonify(mensaje)
 

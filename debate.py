@@ -38,20 +38,29 @@ REGLAS = (
     "moderador humano presente sobre el tema que él les dé - puede ser un negocio, una "
     "decisión personal, una opinión, un debate de café, lo que sea. Adaptá tu rol al "
     "tema en cuestión, no fuerces que todo termine siendo sobre plata o negocios si el "
-    "tema no va por ahí. Respondé en español rioplatense, tono natural y directo, "
-    "máximo 3-4 oraciones. Construí sobre lo que dijo el último que habló: sumale algo "
-    "nuevo, contradecilo con un argumento concreto, o profundizá un punto - no repitas "
-    "lo mismo con otras palabras ni des vueltas en círculo. Si el tema tiene una "
-    "conclusión o decisión posible, la mesa va llegando hacia ahí de a poco; si no la "
-    "tiene (una opinión, un debate sin resolución única), igual el intercambio tiene "
-    "que avanzar y no estancarse."
+    "tema no va por ahí. Respondé en español rioplatense, tono CALMO y directo, máximo "
+    "3-4 oraciones - no hace falta que cada mensaje sea un grito ni una escalada de "
+    "energía, está bien sonar tranquilo, e incluso seco, si el tema no amerita otra cosa. "
+    "\n\nRegla dura anti-repetición: antes de responder, fijate qué dijiste VOS MISMO en "
+    "mensajes anteriores de esta charla. Si lo que ibas a decir ya lo dijiste (aunque sea "
+    "con otras palabras), NO lo repitas: en cambio, decí en una sola frase 'no tengo nada "
+    "nuevo para sumar acá' y parate ahí, corto. Construí sobre lo que dijo el ÚLTIMO que "
+    "habló con algo genuinamente nuevo, o cuestionalo con un argumento concreto - nunca "
+    "des vueltas en círculo repitiendo el mismo punto con sinónimos.\n\n"
+    "Señal de cierre: en cuanto la idea sobre la mesa ya sea concreta y accionable (no "
+    "hace falta que sea perfecta, alcanza con que sea ejecutable), DECILO explícitamente "
+    "y preguntale al moderador si quiere pasar a la acción - por ejemplo: 'Che, esto ya "
+    "está lo bastante concreto, ¿lo cerramos y armamos la orden de trabajo?'. Terminá ese "
+    "mensaje puntual con la etiqueta exacta [LISTO] al final (nada más en esa línea). No "
+    "seas de los que da vueltas eternamente sobre una idea que ya cierra: si está lista, "
+    "avisá y proponé cerrar, no seas timido para decirlo."
 )
 
 PERSONAS = {
-    "Grok": "Sos Grok: la voz más audaz y provocadora de la mesa. Ante cualquier tema, "
-            "tirás la postura o la idea más fuerte y menos obvia, con seguridad y algo "
-            "de sarcasmo, y la vas afinando con lo que aportan los otros dos sin "
-            "repetir siempre el mismo argumento." + REGLAS,
+    "Grok": "Sos Grok: la voz más audaz de la mesa. Ante cualquier tema, tirás la "
+            "postura o la idea más fuerte y menos obvia - con seguridad, pero sin "
+            "necesidad de gritar ni de sonar siempre exaltado - y la vas afinando con "
+            "lo que aportan los otros dos sin repetir siempre el mismo argumento." + REGLAS,
     "ChatGPT": "Sos ChatGPT: el que ordena y estructura la conversación. Agarrás lo que "
                "se dijo y lo convertís en algo más claro y concreto - un argumento "
                "mejor armado, una lista de puntos, un paso siguiente, una estructura - "
@@ -128,6 +137,16 @@ def orden_al_azar():
     """Devuelve a los 3 agentes en un orden mezclado, para que no hablen
     siempre Grok -> ChatGPT -> Claude en el mismo orden."""
     return random.sample(AGENTES, len(AGENTES))
+
+
+def extraer_listo(texto):
+    """Detecta la etiqueta [LISTO] que un agente deja cuando cree que la
+    idea ya está lo bastante concreta como para pasar a la acción, y la
+    saca del texto visible. Devuelve (texto_limpio, listo: bool)."""
+    listo = "[LISTO]" in texto
+    if listo:
+        texto = texto.replace("[LISTO]", "").strip()
+    return texto, listo
 
 
 def listar_modelos():
@@ -531,7 +550,10 @@ def auto_ronda():
         except Exception as e:
             print(f"{color}⚠️  {nombre} falló: {e}{RESET}")
             continue
+        texto, listo = extraer_listo(texto)
         print(f"{color}{NEGRITA}{ICONOS[nombre]} {nombre}:{RESET} {color}{texto}{RESET}")
+        if listo:
+            print(f"{NEGRITA}🎯 {nombre} cree que esto ya está listo para pasar a la acción.{RESET}")
         historial += "\n" + nombre + ": " + texto + "\n"
     estado["historial"] = historial
     guardar_estado(estado)
@@ -584,8 +606,12 @@ def debate(tema, rondas=30):
                 print(f"\r{color}⚠️  {nombre} falló: {e}{RESET}" + " " * 20)
                 continue  # si uno falla, el debate sigue con los otros
             print("\r" + " " * 60 + "\r", end="")  # borra el "está escribiendo..."
+            texto, listo = extraer_listo(texto)
             print(f"{color}{NEGRITA}{ICONOS[nombre]} {nombre}:{RESET} ", end="")
             escribir(f"{color}{texto}{RESET}")
+            if listo:
+                print(f"{NEGRITA}🎯 {nombre} cree que esto ya está listo para pasar a la "
+                      f"acción (escribí 'salir' y después --auto-orden o --ejecutar).{RESET}")
             historial += "\n" + nombre + ": " + texto + "\n"
 
             extra = input(f"\n{prompt_moderador}").strip()

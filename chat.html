@@ -65,6 +65,7 @@
   .burbuja.error .autor { color: #dc2626; }
   .burbuja.cierre { border: 1px solid; }
   .burbuja.orden { border: 2px dashed; }
+  .burbuja.listo { box-shadow: 0 0 0 2px var(--mod); }
 
   .escribiendo { opacity: 0.6; font-style: italic; }
 
@@ -256,8 +257,18 @@ async function iniciarLoopSiHaceFalta() {
     setLineaEstado("pensando...");
     try {
       const r = await api("/api/siguiente", {});
-      agregarBurbuja(r.autor, r.texto);
+      agregarBurbuja(r.autor, r.texto, r.listo ? "listo" : "");
       $planActions.classList.add("visible");
+      if (r.listo) {
+        agregarBurbuja(
+          "Sistema",
+          "🎯 " + r.autor + " cree que esto ya está listo para pasar a la acción. " +
+          "Usá los botones de abajo (orden de trabajo o cerrar) o seguí charlando si no."
+        );
+        activo = false;
+        actualizarBotonPausa();
+        break;
+      }
     } catch (e) {
       agregarBurbuja("Sistema", "Error: " + e.message, "error");
       activo = false;
@@ -381,7 +392,9 @@ $texto.addEventListener("keydown", (e) => {
     const r = await fetch("/api/estado").then((x) => x.json());
     if (r.usuario) $temaActual.textContent = "Conectado como " + r.usuario;
     if (r.mensajes && r.mensajes.length) {
-      for (const m of r.mensajes) agregarBurbuja(m.autor, m.texto, m.cierre ? "cierre" : "");
+      for (const m of r.mensajes) {
+        agregarBurbuja(m.autor, m.texto, m.cierre ? "cierre" : (m.listo ? "listo" : ""));
+      }
       arrancado = true;
       if (r.cerrado) {
         planCerrado = true;
