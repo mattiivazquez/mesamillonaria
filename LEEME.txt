@@ -45,6 +45,12 @@ siempre Grok -> ChatGPT -> Claude). Podés meter un comentario en cualquier
 momento sin que se trabe nada, y hay un botón ⏸/▶️ para pausar o seguir
 cuando quieras.
 
+Tienen prohibido repetirse (si uno no tiene nada nuevo, lo dice en una
+frase y se calla) y en cuanto creen que la idea ya es concreta, lo avisan
+solos con un mensaje destacado tipo "¿lo cerramos?" - el chat se pausa
+solo en ese momento para que decidas vos si seguís charlando o pasás a los
+botones de abajo.
+
 Botones:
   🫡 Dame la orden de trabajo -> en cualquier momento de la charla, si te
      gustó por dónde va una idea: los tres te dan instrucciones concretas
