@@ -120,53 +120,51 @@ Notas:
     MODELO_CHATGPT=gpt-5.1 (default del script, no hace falta ponerlo en .env)
     MODELO_CLAUDE=claude-sonnet-5 (default del script, no hace falta ponerlo en .env)
 
-Hostearlo en internet (para entrar desde cualquier lado, sin wifi compartida)
+Hostearlo profesional (siempre encendido, disco propio, dominio propio)
 ==============================================================================
-Ya está todo preparado (repo git, .gitignore, requirements.txt). Recomiendo
-Render.com porque tiene un plan gratis sin pedir tarjeta para este tipo de
-apps chicas. Pasos:
+El repo ya está en GitHub (github.com/mattiivazquez/mesamillonaria) y el
+código ya usa Gunicorn (servidor de producción real, no el de desarrollo
+de Flask). Esto es la versión "paga y en serio", con Render.com:
 
-1) Subir el código a GitHub (una sola vez):
-   - Entrá a github.com, creá una cuenta si no tenés, y creá un repositorio
-     NUEVO y PRIVADO (botón "New" -> nombre, ej. "mesa-millonaria" -> Private
-     -> Create repository). No marques "Add a README".
-   - Copiá la URL que te da (termina en .git) y pegámela para que la
-     conecte y suba el código, o hacelo vos mismo:
-       git remote add origin <la-URL-que-copiaste>
-       git branch -M main
-       git push -u origin main
-   - El .env NO se sube (está en .gitignore) - tus claves quedan a salvo.
-
-2) Crear la cuenta en Render.com (gratis, no pide tarjeta para este plan):
-   - Entrá a render.com -> Sign Up -> podés entrar con tu cuenta de GitHub
-     directamente, así ya queda conectado.
-
-3) Crear el servicio:
-   - Dashboard -> New -> Web Service.
-   - Elegí el repo "mesa-millonaria" que subiste.
+1) Crear el servicio en Render:
+   - render.com -> Sign Up con tu cuenta de GitHub (si no lo hiciste ya).
+   - Dashboard -> New -> Web Service -> elegí el repo "mesamillonaria".
    - Build Command:   pip install -r requirements.txt
-   - Start Command:   python app.py
-   - Plan: Free.
+   - Start Command:   gunicorn --workers 1 --threads 4 --bind 0.0.0.0:$PORT app:app
+     (1 worker + varios threads, NO varios workers - la charla de cada
+     usuario vive en memoria, y varios workers no la comparten entre sí)
+   - Plan: Starter (~7 USD/mes) - sin esto, se "duerme" a los 15 min de no
+     uso y tarda 30-50s en despertar. Con Starter queda siempre prendido.
 
-4) Cargar las claves (Environment -> Add Environment Variable), una por
-   una, copiando los valores de tu .env local:
-   - ANTHROPIC_API_KEY
-   - XAI_API_KEY
-   - OPENAI_API_KEY
-   - MODELO_GROK
-   - USUARIOS  (con las claves reales para vos, tu mujer y tu mamá)
-   - FLASK_SECRET_KEY  (la misma que ya tenés en tu .env local)
+2) Cargar las claves (Environment -> Add Environment Variable):
+   - ANTHROPIC_API_KEY, XAI_API_KEY, OPENAI_API_KEY, MODELO_GROK
+   - USUARIOS (con las claves reales para vos, tu mujer y tu mamá)
+   - FLASK_SECRET_KEY (la misma que ya tenés en tu .env local)
 
-5) Create Web Service. Esperá el deploy (unos minutos) y te da una URL
-   pública tipo https://mesa-millonaria.onrender.com - esa es la que le
-   pasás a tu mujer y a tu mamá. Cada uno entra con su propio usuario.
+3) Disco persistente (para que las planillas/PDFs/webs generadas NO se
+   borren cuando Render reinicia el servicio):
+   - En el servicio -> Disks -> Add Disk.
+   - Name: planes-disk. Size: 1 GB alcanza de sobra (~0.25 USD/mes).
+   - Mount Path: la ruta que te muestra Render para tu proyecto + "/planes"
+     (algo como /opt/render/project/src/planes - Render te lo completa).
+   - Create Web Service y esperá el primer deploy.
 
-Cosas a tener en cuenta con el plan gratis de Render:
-- Si nadie lo usa por 15 minutos, el servidor "se duerme"; el próximo que
-  entre espera unos 30-50 segundos mientras arranca de nuevo. Es normal.
-- Los archivos que se generan en planes/ (CSV, HTML, PDF) NO quedan
-  guardados para siempre ahí - se pierden si Render reinicia el servicio.
-  Descargalos apenas los generás (el chat ya te da el link de descarga).
-- Para actualizar el código hosteado más adelante: hacé los cambios acá,
-  "git add -A && git commit -m 'cambios' && git push", y Render lo
-  redespliega solo.
+4) Dominio propio (mesamillonaria.com o el que prefieras):
+   - Compralo en un registrador (Namecheap, GoDaddy, Google Domains, etc.)
+     - esto lo hacés vos con tu propia tarjeta, ~10-15 USD/año.
+   - En Render: el servicio -> Settings -> Custom Domains -> Add Custom
+     Domain -> escribí tu dominio. Render te muestra 1 o 2 registros DNS
+     (tipo CNAME o A) para agregar.
+   - Andá al panel de tu registrador -> DNS -> agregá esos registros
+     exactamente como los muestra Render.
+   - Esperá que propague (minutos a un par de horas). Render emite el
+     certificado HTTPS solo, gratis, en cuanto detecta el dominio andando.
+
+Para actualizar el código hosteado más adelante: hacé los cambios acá,
+"git add -A && git commit -m 'cambios' && git push", y Render lo
+redespliega solo.
+
+(Si en algún momento preferís volver al plan gratis para probar algo sin
+gastar: Start Command "python app.py", Plan Free, y sacás el disco - los
+archivos generados vuelven a ser temporales y el servicio se duerme solo,
+pero para probar alcanza.)
